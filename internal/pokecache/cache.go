@@ -41,7 +41,7 @@ func (c *Cache) Add(key string, value []byte) {
 	}
 }
 func (c *Cache) AddLocation(key string, value []byte) {
-	fmt.Printf("adding the %s to the cache",key )
+	fmt.Printf("adding the %s to the cache", key)
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.locationCache[key] = cacheEntry{
@@ -56,17 +56,16 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	val, ok := c.locationAreaCache[key]
-	
-	
+
 	return val.val, ok
 }
 func (c *Cache) GetLocation(location string) ([]byte, bool) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	
+
 	val, ok := c.locationCache[location]
 	if ok {
-		fmt.Printf("%s was in the cache" , location)
+		fmt.Printf("%s was in the cache", location)
 	}
 	return val.val, ok
 }
