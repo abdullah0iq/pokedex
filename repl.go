@@ -7,12 +7,10 @@ import (
 	"strings"
 
 	"github.com/abdullah0iq/pokedex/internal/pokeapi"
-	"github.com/abdullah0iq/pokedex/internal/pokecache"
 )
 
 type config struct {
 	pokeapiClient    pokeapi.Client
-	pokeCache        pokecache.Cache
 	nextLocationsURL *string
 	prevLocationsURL *string
 }
@@ -20,18 +18,25 @@ type config struct {
 func startRepl(cfg *config) {
 	reader := bufio.NewScanner(os.Stdin)
 	for {
+		var commandName string
+		var commandArg []string
 		fmt.Print("Pokedex > ")
 		reader.Scan()
 		words := cleanInput(reader.Text())
 		if len(words) == 0 {
 			fmt.Println("0 input")
 			continue
+		} else if len(words) == 1 {
+			commandName = words[0]
+			commandArg = []string{}
+		} else {
+			commandName = words[0]
+			commandArg = words[1:]
 		}
-		commandName := words[0]
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			err := command.callback(cfg)
+			err := command.callback(cfg, commandArg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -57,7 +62,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -76,6 +81,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Get the previous page of locations",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Get all the Pokemons in th specified area 'explore area_name'",
+			callback:    commandExplore,
 		},
 		"exit": {
 			name:        "exit",
